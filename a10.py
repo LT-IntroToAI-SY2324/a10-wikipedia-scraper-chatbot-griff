@@ -7,6 +7,11 @@ from nltk.tree import Tree
 from match import match
 from typing import List, Callable, Tuple, Any, Match
 
+#famous scientists
+
+#Education
+#Known for
+#Field
 
 def get_page_html(title: str) -> str:
     """Gets html of a wikipedia page
@@ -103,6 +108,7 @@ def get_birth_date(name: str) -> str:
         birth date of the given person
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
     pattern = r"(?:Born\D*)(?P<birth>\d{4}-\d{2}-\d{2})"
     error_text = (
         "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
@@ -110,6 +116,25 @@ def get_birth_date(name: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("birth")
+
+def get_education(name: str) -> str:
+    """Gets education or places studied of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        education of places studied of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
+    pattern = r"Education(?P<education>.*)Known for"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("education")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -127,6 +152,17 @@ def birth_date(matches: List[str]) -> List[str]:
         birth date of named person
     """
     return [get_birth_date(" ".join(matches))]
+
+def education(matches: List[str]) -> List[str]:
+    """Returns birth date of named person in matches
+
+    Args:
+        matches - match from pattern of person's name to find birth date of
+
+    Returns:
+        birth date of named person
+    """
+    return [get_education(" ".join(matches))]
 
 
 def polar_radius(matches: List[str]) -> List[str]:
@@ -156,6 +192,7 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is the education of %".split(), education),
     (["bye"], bye_action),
 ]
 
