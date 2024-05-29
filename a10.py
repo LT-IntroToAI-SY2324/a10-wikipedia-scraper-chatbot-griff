@@ -117,6 +117,25 @@ def get_birth_date(name: str) -> str:
 
     return match.group("birth")
 
+def get_known_for(name: str) -> str:
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
+    pattern = r"(?:Born\D*)(?P<birth>\d{4}-\d{2}-\d{2})"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("birth")
+
 def get_education(name: str) -> str:
     """Gets education or places studied of the given person
 
@@ -192,7 +211,7 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
-    ("what is the education of %".split(), education),
+    ("what was the education of %".split(), education),
     (["bye"], bye_action),
 ]
 
