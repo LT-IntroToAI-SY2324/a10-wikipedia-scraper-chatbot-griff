@@ -117,24 +117,24 @@ def get_birth_date(name: str) -> str:
 
     return match.group("birth")
 
-def get_known_for(name: str) -> str:
-    """Gets birth date of the given person
+def get_age(name: str) -> str:
+    """Gets age of the given person
 
     Args:
         name - name of the person
 
     Returns:
-        birth date of the given person
+        age of the given person
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
     # print(infobox_text)
-    pattern = r"(?:Born\D*)(?P<birth>\d{4}-\d{2}-\d{2})"
+    pattern = r"aged (?P<age>\d+)"
     error_text = (
-        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+        "Page infobox has no age information (at least none in xxxx-xx-xx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
-    return match.group("birth")
+    return match.group("age")
 
 def get_education(name: str) -> str:
     """Gets education or places studied of the given person
@@ -155,6 +155,25 @@ def get_education(name: str) -> str:
 
     return match.group("education")
 
+def get_fields(name: str) -> str:
+    """Gets field of given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        education of places studied of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
+    pattern = r"Fields(?P<fields>.*)Institutions"
+    error_text = (
+        "Page infobox has no field information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("fields")
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -171,6 +190,29 @@ def birth_date(matches: List[str]) -> List[str]:
         birth date of named person
     """
     return [get_birth_date(" ".join(matches))]
+
+def age(matches: List[str]) -> List[str]:
+    """Returns age of named person in matches
+
+    Args:
+        matches - match from pattern of person's name to find age of
+
+    Returns:
+        age of named person
+    """
+    return [get_age(" ".join(matches))]
+
+def fields(matches: List[str]) -> List[str]:
+    """Returns field of named person in matches
+
+    Args:
+        matches - match from pattern of person's name to find age of
+
+    Returns:
+        field of named person
+    """
+    return [get_fields(" ".join(matches))]
+
 
 def education(matches: List[str]) -> List[str]:
     """Returns birth date of named person in matches
@@ -212,6 +254,8 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what was the education of %".split(), education),
+    ("how old was %".split(), age),
+    ("what was % field(s) of study".split(), fields),
     (["bye"], bye_action),
 ]
 
